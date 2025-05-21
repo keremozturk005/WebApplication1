@@ -49,27 +49,11 @@ else if (!string.IsNullOrEmpty(errorMessage))
         errorMessage = null;
         isLoading = true;
         weatherData = null;
-
-
-        try
-        {
-            var response = await Http.GetAsync($"WeatherForecast/{city}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                weatherData = await Http.GetFromJsonAsync<weatherResult>($"WeatherForecast/{city}");
-            }
-        }
-
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-
-        finally
-        {
-            isLoading = false;
-        }
+        weatherData = await Http.GetFromJsonAsync<weatherResult>($"WeatherForecast/{city}");
+        
+          
+        isLoading = false;
+        
     }
 
 }
