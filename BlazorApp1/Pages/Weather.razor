@@ -1,0 +1,75 @@
+﻿
+@page "/weather"
+@inject HttpClient Http
+
+<PageTitle>Weather</PageTitle>
+<input @bind = "city" placeholder= "City Name "/>
+<button @onclick= "GetWeather"> Get Weather</button>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+
+else if(weatherData != null)
+{
+    <p>City: @weatherData.City</p>
+    <p> Temperature: @weatherData.Temperature</p>
+    <p> Feels Like: @weatherData.FeelsLike</p>
+    <p> Description: @weatherData.Description</p>
+    <p> Wind Speed: @weatherData.WindSpeed</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+@code
+{
+    private string city = "";
+    private bool isLoading = false;
+    private string? errorMessage = null;
+    private weatherResult? weatherData;
+    public class weatherResult
+    {
+        public string City { get; set; } = "";
+        public string Description { get; set; } = "";
+        public float Temperature { get; set; }
+        public float FeelsLike { get; set; }
+        public float WindSpeed { get; set; }
+    }
+    private async Task GetWeather()
+    {
+        if (string.IsNullOrWhiteSpace(city))
+        {
+            errorMessage = "Error: Please enter a city name";
+            weatherData = null;
+            return;
+        }
+
+        errorMessage = null;
+        isLoading = true;
+        weatherData = null;
+
+
+        try
+        {
+            var response = await Http.GetAsync($"WeatherForecast/{city}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                weatherData = await Http.GetFromJsonAsync<weatherResult>($"WeatherForecast/{city}");
+            }
+        }
+
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+}
